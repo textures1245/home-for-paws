@@ -1,0 +1,14 @@
+import { z } from "zod";
+
+export const transactionModel = z.object({
+  id: z.string(),
+  uuid: z.string(),
+  userUid: z.string(),
+  amount: z.number(),
+  description: z.string(),
+  status: z.enum(["PENDING", "COMPLETED", "FAILED"]),
+  date: z.date(),
+  type: z.string(),
+});
+
+export type Transaction = z.infer<typeof transactionModel>;
