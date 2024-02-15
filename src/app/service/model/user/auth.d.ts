@@ -12,4 +12,6 @@ export const authModel = z.object({
   updatedAt: z.date(),
 });
 
+
+
 export type Auth = z.infer<typeof authModel>;
