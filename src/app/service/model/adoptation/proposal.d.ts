@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const offeringModel = z.object({
+export const proposalModel = z.object({
   id: z.number().int().positive(),
   uid: z.string().uuid(),
   petUuid: z.string().uuid(),
@@ -10,3 +10,5 @@ export const offeringModel = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 });
+
+export type Proposal = z.infer<typeof proposalModel>;

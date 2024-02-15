@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const authModel = z.object({
   id: z.number().positive(),
-  uid: z.string().uuid(),
+  uuid: z.string().uuid(),
   email: z.string().email(),
   password: z
     .string()

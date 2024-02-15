@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { messageModel } from "./message";
 
-export const roomChatModel = z.object({
+export const chatRoomModel = z.object({
   id: z.number().int().positive(),
   uuid: z.string().uuid(),
   createdAt: z.date(),
@@ -10,4 +10,4 @@ export const roomChatModel = z.object({
   messages: messageModel.array(),
 });
 
-export type RoomChat = z.infer<typeof roomChatModel>;
+export type ChatRoom = z.infer<typeof chatRoomModel>;
