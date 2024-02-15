@@ -1,0 +1,183 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+    USER_SENDER
+    USER_ADOPTER
+    ADMIN
+}
+
+model Auth {
+    id        Int      @id @default(autoincrement())
+    uid       String   @unique @default(uuid()) @db.Uuid()
+    email     String   @unique
+    password  String
+    createdAt DateTime
+    updatedAt DateTime
+    // Define relationships
+    user      User     @relation(fields: [userUuid], references: [uuid])
+    userUuid  String   @unique @db.Uuid()
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    email     String
+    createdAt DateTime
+    updatedAt DateTime
+    userRole  Role
+
+    // Define relationships
+    auth               Auth?
+    userPreferences    Preference @relation(fields: [userPreferenceUuid], references: [uid])
+    userPreferenceUuid String     @db.Uuid()
+    Payment            Payment[]
+    Review             Review[]
+    Message            Message[]
+    ChatRoom           ChatRoom[]
+    Proposal           Proposal[]
+}
+
+model Payment {
+    id          Int      @id @default(autoincrement())
+    uid         String   @unique @default(uuid()) @db.Uuid()
+    amount      Float
+    description String
+    status      String
+    date        DateTime
+    type        String
+
+    // Define relationships
+    user     User   @relation(fields: [userUuid], references: [uuid])
+    userUuid String @db.Uuid()
+}
+
+model Review {
+    id           Int      @id @default(autoincrement())
+    uuid         String   @unique @default(uuid()) @db.Uuid()
+    reviewDetail String
+    createdAt    DateTime
+    updatedAt    DateTime
+    rating       Float
+
+    // Define relationships
+    user     User   @relation(fields: [userUuid], references: [uuid])
+    userUuid String @db.Uuid()
+}
+
+model Pet {
+    id        Int        @id @default(autoincrement())
+    uuid      String     @unique @default(uuid()) @db.Uuid()
+    name      String
+    type      String
+    species   String
+    age       Int
+    createdAt DateTime
+    updatedAt DateTime
+    Proposal  Proposal[]
+}
+
+model ChatRoom {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    createdAt DateTime
+    updatedAt DateTime
+
+    User    User[]
+    Message Message[]
+}
+
+model Message {
+    id         Int       @id @default(autoincrement())
+    content    String
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    userUuid   Int
+    user       User      @relation(fields: [userUuid], references: [id])
+    RoomChat   ChatRoom? @relation(fields: [roomChatId], references: [id])
+    roomChatId Int?
+}
+
+model Contacts {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    email     String?
+    phone     String?
+    createdAt DateTime
+    updatedAt DateTime
+
+    // No direct relationships provided in the original schema, adjust as needed
+    Preference Preference[]
+}
+
+model DataAnalytics {
+    id                  Int      @id @default(autoincrement())
+    uuid                String   @unique @default(uuid()) @db.Uuid()
+    budget              String
+    rating              Float    @default(0)
+    willingnessToTravel Boolean
+    createdAt           DateTime
+    updatedAt           DateTime
+
+    // No direct relationships provided in the original schema, adjust as needed
+    Preference   Preference[]
+    location     Location     @relation(fields: [locationUuid], references: [uuid])
+    locationUuid String       @db.Uuid()
+}
+
+model Proposal {
+    id                Int      @id @default(autoincrement())
+    uid               String   @unique @default(uuid()) @db.Uuid()
+    petUuid           String   @db.Uuid()
+    proposalOwnerUuid String   @db.Uuid()
+    offeringPrice     Float
+    status            String
+    createdAt         DateTime
+    updatedAt         DateTime
+
+    // Define relationships
+    pet           Pet  @relation(fields: [petUuid], references: [uuid])
+    proposalOwner User @relation(fields: [proposalOwnerUuid], references: [uuid])
+}
+
+model Preference {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    uid       String   @unique
+    createdAt DateTime
+    updatedAt DateTime
+
+    // Define relationships
+    contacts      Contacts      @relation(fields: [contactUuid], references: [uuid])
+    contactUuid   String        @db.Uuid()
+    dataAnalytics DataAnalytics @relation(fields: [dataUuid], references: [uuid])
+    dataUuid      String        @db.Uuid()
+    User          User[]
+}
+
+model Location {
+    id            Int             @id @default(autoincrement())
+    uuid          String          @unique @default(uuid()) @db.Uuid()
+    type          String
+    properties    Json
+    geometry      Geometry        @relation(fields: [geometryUuid], references: [uuid])
+    geometryUuid  String          @db.Uuid()
+    DataAnalytics DataAnalytics[]
+}
+
+model Geometry {
+    id          Int        @id @default(autoincrement())
+    uuid        String     @unique @default(uuid()) @db.Uuid()
+    coordinates Float[]
+    type        String
+    Location    Location[]
+}
+
+// Add other models and relationships as needed
