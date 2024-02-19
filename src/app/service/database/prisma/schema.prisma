@@ -29,10 +29,14 @@ model User {
     userPreferences    Preference @relation(fields: [userPreferenceUuid], references: [uuid])
     userPreferenceUuid String     @db.Uuid()
     Payment            Payment[]
-    Review             Review[]
     Message            Message[]
     ChatRoom           ChatRoom[]
-    Proposal           Proposal[]
+
+    OwnerReview      Review[]   @relation("OwnerRelation")
+    ReviewPreference Review[]   @relation("ToUserRelation")
+    Pet              Pet[]
+    ToOfferingUser   Proposal[] @relation("toOfferingUser")
+    ProposalOwner    Proposal[] @relation("proposalOwner")
 }
 
 model Payment {
@@ -58,20 +62,24 @@ model Review {
     rating       Float
 
     // Define relationships
-    user     User   @relation(fields: [userUuid], references: [uuid])
-    userUuid String @db.Uuid()
+    owner      User   @relation(name: "OwnerRelation", fields: [ownerUuid], references: [uuid])
+    toUser     User   @relation(name: "ToUserRelation", fields: [toUserUuid], references: [uuid])
+    ownerUuid  String @db.Uuid()
+    toUserUuid String @db.Uuid()
 }
 
 model Pet {
-    id        Int        @id @default(autoincrement())
-    uuid      String     @unique @default(uuid()) @db.Uuid()
-    name      String
-    type      String
-    species   String
-    age       Int
-    createdAt DateTime
-    updatedAt DateTime
-    Proposal  Proposal[]
+    id           Int        @id @default(autoincrement())
+    uuid         String     @unique @default(uuid()) @db.Uuid()
+    name         String
+    type         String
+    species      String
+    age          Int
+    createdAt    DateTime
+    updatedAt    DateTime
+    PetOwner     User       @relation(fields: [petOwnerUuid], references: [uuid])
+    petOwnerUuid String     @db.Uuid()
+    Proposal     Proposal[]
 }
 
 model ChatRoom {
@@ -85,21 +93,21 @@ model ChatRoom {
 }
 
 model Message {
-    id         Int       @id @default(autoincrement())
+    id         Int      @id @default(autoincrement())
     content    String
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
     userUuid   Int
-    user       User      @relation(fields: [userUuid], references: [id])
-    RoomChat   ChatRoom? @relation(fields: [roomChatId], references: [id])
-    roomChatId Int?
+    user       User     @relation(fields: [userUuid], references: [id])
+    RoomChat   ChatRoom @relation(fields: [roomChatId], references: [id])
+    roomChatId Int
 }
 
 model Contacts {
     id        Int      @id @default(autoincrement())
     uuid      String   @unique @default(uuid()) @db.Uuid()
-    email     String?
-    phone     String?
+    email     String
+    phone     String
     createdAt DateTime
     updatedAt DateTime
 
@@ -133,8 +141,10 @@ model Proposal {
     updatedAt         DateTime
 
     // Define relationships
-    pet           Pet  @relation(fields: [petUuid], references: [uuid])
-    proposalOwner User @relation(fields: [proposalOwnerUuid], references: [uuid])
+    pet                Pet     @relation(fields: [petUuid], references: [uuid])
+    toOfferingUser     User?   @relation(name: "toOfferingUser", fields: [toOfferingUserUuid], references: [uuid])
+    toOfferingUserUuid String? @db.Uuid()
+    proposalOwner      User    @relation(name: "proposalOwner", fields: [proposalOwnerUuid], references: [uuid])
 }
 
 model Preference {
