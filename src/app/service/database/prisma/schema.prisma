@@ -16,20 +16,20 @@ model Auth {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
     // Define relationships
-    user      User     @relation(fields: [userUuid], references: [uuid])
-    userUuid  String   @unique @db.Uuid()
+    User      User?
 }
 
 model User {
     id        Int      @id @default(autoincrement())
     uuid      String   @unique @default(uuid()) @db.Uuid()
-    email     String
+    email     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
     userRole  Role
 
     // Define relationships
-    auth               Auth?
+    auth               Auth       @relation(fields: [authUuid], references: [uuid])
+    authUuid           String     @unique @db.Uuid()
     userPreferences    Preference @relation(fields: [userPreferenceUuid], references: [uuid])
     userPreferenceUuid String     @db.Uuid()
     Payment            Payment[]
@@ -124,7 +124,7 @@ model Contacts {
 model DataAnalytics {
     id                  Int          @id @default(autoincrement())
     uuid                String       @unique @default(uuid()) @db.Uuid()
-    budget              String
+    budget              Float
     rating              Float        @default(0)
     willingnessToTravel Boolean
     createdAt           DateTime     @default(now())
