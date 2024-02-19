@@ -2,7 +2,13 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { Auth } from "@/app/service/model/user/auth";
 
-const paymentStore = create<Auth>()(
+type AuthState = Auth & {
+  setAuth: (authData: Auth) => void;
+};
+
+
+
+const paymentStore = create<AuthState>()(
   devtools(
     persist(
       (set, get) => ({

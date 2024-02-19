@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { User } from "@/app/service/model/user/user";
-import authStore from "@/app/service/store/authStore";
-import userPreferenceStore from "@/app/service/store/preferenceStore";
+import authStore from "@/app/service/state/store/authStore";
+import userPreferenceStore from "@/app/service/state/store/preferenceStore";
 
 const paymentStore = create<User>()(
   devtools(
