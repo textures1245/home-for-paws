@@ -9,8 +9,8 @@ model Auth {
     uuid      String   @unique @default(uuid()) @db.Uuid()
     email     String   @unique
     password  String
-    createdAt DateTime
-    updatedAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
     // Define relationships
     user      User     @relation(fields: [userUuid], references: [uuid])
     userUuid  String   @unique @db.Uuid()
@@ -20,8 +20,8 @@ model User {
     id        Int      @id @default(autoincrement())
     uuid      String   @unique @default(uuid()) @db.Uuid()
     email     String
-    createdAt DateTime
-    updatedAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
     userRole  Role
 
     // Define relationships
@@ -47,6 +47,8 @@ model Payment {
     status      String
     date        DateTime
     type        String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @default(now()) @updatedAt
 
     // Define relationships
     user     User   @relation(fields: [userUuid], references: [uuid])
@@ -57,8 +59,8 @@ model Review {
     id           Int      @id @default(autoincrement())
     uuid         String   @unique @default(uuid()) @db.Uuid()
     reviewDetail String
-    createdAt    DateTime
-    updatedAt    DateTime
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now()) @updatedAt
     rating       Float
 
     // Define relationships
@@ -75,8 +77,8 @@ model Pet {
     type         String
     species      String
     age          Int
-    createdAt    DateTime
-    updatedAt    DateTime
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
     PetOwner     User       @relation(fields: [petOwnerUuid], references: [uuid])
     petOwnerUuid String     @db.Uuid()
     Proposal     Proposal[]
@@ -85,8 +87,8 @@ model Pet {
 model ChatRoom {
     id        Int      @id @default(autoincrement())
     uuid      String   @unique @default(uuid()) @db.Uuid()
-    createdAt DateTime
-    updatedAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
     User    User[]
     Message Message[]
@@ -96,7 +98,7 @@ model Message {
     id         Int      @id @default(autoincrement())
     content    String
     createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    updatedAt  DateTime @default(now()) @updatedAt
     userUuid   Int
     user       User     @relation(fields: [userUuid], references: [id])
     RoomChat   ChatRoom @relation(fields: [roomChatId], references: [id])
@@ -108,50 +110,48 @@ model Contacts {
     uuid      String   @unique @default(uuid()) @db.Uuid()
     email     String
     phone     String
-    createdAt DateTime
-    updatedAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
     // No direct relationships provided in the original schema, adjust as needed
     Preference Preference[]
 }
 
 model DataAnalytics {
-    id                  Int      @id @default(autoincrement())
-    uuid                String   @unique @default(uuid()) @db.Uuid()
+    id                  Int          @id @default(autoincrement())
+    uuid                String       @unique @default(uuid()) @db.Uuid()
     budget              String
-    rating              Float    @default(0)
+    rating              Float        @default(0)
     willingnessToTravel Boolean
-    createdAt           DateTime
-    updatedAt           DateTime
-
+    createdAt           DateTime     @default(now())
+    updatedAt           DateTime     @default(now()) @updatedAt
     // No direct relationships provided in the original schema, adjust as needed
-    Preference   Preference[]
-    location     Location     @relation(fields: [locationUuid], references: [uuid])
-    locationUuid String       @db.Uuid()
+    Preference          Preference[]
+    location            Location     @relation(fields: [locationUuid], references: [uuid])
+    locationUuid        String       @db.Uuid()
 }
 
 model Proposal {
-    id                Int      @id @default(autoincrement())
-    uuid              String   @unique @default(uuid()) @db.Uuid()
-    petUuid           String   @db.Uuid()
-    proposalOwnerUuid String   @db.Uuid()
-    offeringPrice     Float
-    status            String
-    createdAt         DateTime
-    updatedAt         DateTime
-
+    id                 Int      @id @default(autoincrement())
+    uuid               String   @unique @default(uuid()) @db.Uuid()
+    petUuid            String   @db.Uuid()
+    proposalOwnerUuid  String   @db.Uuid()
+    offeringPrice      Float
+    status             String
+    createdAt          DateTime @default(now())
+    updatedAt          DateTime @default(now()) @updatedAt
     // Define relationships
-    pet                Pet     @relation(fields: [petUuid], references: [uuid])
-    toOfferingUser     User?   @relation(name: "toOfferingUser", fields: [toOfferingUserUuid], references: [uuid])
-    toOfferingUserUuid String? @db.Uuid()
-    proposalOwner      User    @relation(name: "proposalOwner", fields: [proposalOwnerUuid], references: [uuid])
+    pet                Pet      @relation(fields: [petUuid], references: [uuid])
+    toOfferingUser     User?    @relation(name: "toOfferingUser", fields: [toOfferingUserUuid], references: [uuid])
+    toOfferingUserUuid String?  @db.Uuid()
+    proposalOwner      User     @relation(name: "proposalOwner", fields: [proposalOwnerUuid], references: [uuid])
 }
 
 model Preference {
     id        Int      @id @default(autoincrement())
     uuid      String   @unique @default(uuid()) @db.Uuid()
-    createdAt DateTime
-    updatedAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
     // Define relationships
     contacts      Contacts      @relation(fields: [contactUuid], references: [uuid])
@@ -169,6 +169,8 @@ model Location {
     geometry      Geometry        @relation(fields: [geometryUuid], references: [uuid])
     geometryUuid  String          @db.Uuid()
     DataAnalytics DataAnalytics[]
+    createdAt     DateTime        @default(now())
+    updatedAt     DateTime        @default(now()) @updatedAt
 }
 
 model Geometry {
