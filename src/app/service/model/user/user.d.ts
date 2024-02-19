@@ -10,7 +10,6 @@ export const userModel = z.object({
   updatedAt: z.date(),
   userRole: z.enum(["ADMIN", "USER_SENDER", "USER_ADOPTER"]),
   userPreferences: preferenceModel,
-  auth: authModel,
 });
 
 export type User = z.infer<typeof userModel>;
