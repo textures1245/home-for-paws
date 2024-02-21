@@ -1,20 +1,30 @@
+"use client";
+
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
-import { Payment } from "@/app/service/model/transaction/payment";
+import { Payment as PrismaPayment } from "@prisma/client";
+import { getPayments } from "../controller/paymentController";
 
-const paymentStore = create<Payment>()(
+type PaymentState = {
+  paymentList: PrismaPayment[];
+  setPaymentList: () => void;
+  addPayment: (payment: PrismaPayment) => void;
+};
+
+const paymentStore = create<PaymentState>()(
   devtools(
     persist(
       (set, get) => ({
-        id: 0,
-        uuid: "",
-        transferredToUserUuid: "",
-        transferredFromUserUuid: "",
-        amount: 0,
-        description: "",
-        status: "COMPLETED",
-        date: new Date(),
-        type: "",
+        paymentList: [],
+        setPaymentList: async () => {
+          const paymentList = await getPayments();
+          set((state) => ({ paymentList: paymentList }));
+        },
+        addPayment: async (payment: PrismaPayment) => {
+          set((s) => ({
+            paymentList: [...s.paymentList, payment],
+          }));
+        },
       }),
       { name: "payment" }
     )
