@@ -8,7 +8,7 @@ export const paymentModel = z.object({
   amount: z.number(),
   description: z.string(),
   status: z.enum(["COMPLETED", "FAILED"]),
-  date: z.date(),
+  paidDate: z.date(),
   type: z.string(),
 });
 

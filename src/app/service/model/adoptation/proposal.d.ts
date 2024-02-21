@@ -6,7 +6,10 @@ export const proposalModel = z.object({
   petUuid: z.string().uuid(),
   ownerUuid: z.string().uuid(),
   offeringPrice: z.number(),
-  status: z.enum(["PENDING", "COMPLETED", "CANCELLED"]),
+  toUserUuid: z.string().uuid().optional(),
+  description: z.string(),
+  offerAs: z.enum(["USER_SENDER", "USER_ADOPTER", "ADMIN"]),
+  status: z.enum(["PENDING", "ACCEPTED", "REJECTED"]),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
