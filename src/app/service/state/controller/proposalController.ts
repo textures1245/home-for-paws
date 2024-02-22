@@ -21,6 +21,8 @@ const proposalParamModel = proposalModel.pick({
   toUserUuid: true,
   description: true,
   offerAs: true,
+  chatRoomUuid: true,
+  referenceListUuid: true,
 });
 export type ProposalParam = z.infer<typeof proposalParamModel>;
 
@@ -32,7 +34,7 @@ export async function getProposals() {
   }
 }
 
-export async function createProposalRequest(request: ProposalParam) {
+export async function createProposalRequest(request: ProposalParam, referToListType: "PET_DELIVERY" | "PET_ADOPTER") {
   try {
     return prisma.proposal.create({
       data: {
@@ -43,6 +45,9 @@ export async function createProposalRequest(request: ProposalParam) {
         status: "PENDING",
         description: request.description,
         offerAs: request.offerAs,
+        chatRoomUuid: request.chatRoomUuid,
+        petDeliveryListUuid: referToListType === "PET_DELIVERY" ? request.referenceListUuid : undefined,
+        adopterListUuid: referToListType === "PET_ADOPTER" ? request.referenceListUuid : undefined,
       },
     });
   } catch (e) {

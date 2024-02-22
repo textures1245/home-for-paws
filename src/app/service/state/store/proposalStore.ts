@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import {
@@ -20,7 +18,10 @@ import { ToastData } from "../../utils/toast.config";
 type ProposalState = {
   proposalList: PrismaProposal[];
   setProposalList: () => void;
-  addProposal: (request: ProposalParam) => void;
+  addProposal: (
+    request: ProposalParam,
+    referToListType: "PET_DELIVERY" | "PET_ADOPTER"
+  ) => void;
   updateStatus: (
     status: PrismaProposal["status"],
     proposalData: ProposalParam,
@@ -41,8 +42,14 @@ const proposalStore = create<ProposalState>()(
           const proposalList = await getProposals();
           set((state) => ({ proposalList: proposalList }));
         },
-        addProposal: async (request: ProposalParam) => {
-          const proposal = await createProposalRequest(request);
+        addProposal: async (
+          request: ProposalParam,
+          referToListType: "PET_DELIVERY" | "PET_ADOPTER"
+        ) => {
+          const proposal = await createProposalRequest(
+            request,
+            referToListType
+          );
           set((s) => ({
             proposalList: [...s.proposalList, proposal],
           }));
