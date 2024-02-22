@@ -33,8 +33,11 @@ model User {
     userPreferences    Preference @relation(fields: [userPreferenceUuid], references: [uuid])
     userPreferenceUuid String     @db.Uuid()
 
-    Message  Message[]
-    ChatRoom ChatRoom[]
+    Message             Message[]
+
+    // divide the relationship into two different types, make it easier to define proposal reqeust rule
+    RequestUserChatRoom ChatRoom[] @relation("requestUser") 
+    HostUserChatRoom    ChatRoom[] @relation("hostUser")
 
     OwnerReview      Review[]          @relation("OwnerRelation")
     ReviewPreference Review[]          @relation("ToUserRelation")
@@ -109,20 +112,23 @@ model ChatRoom {
     adopterListUuid     String?          @db.Uuid()
     petDeliveryList     PetDeliveryList? @relation(fields: [petDeliveryListUuid], references: [uuid])
     petDeliveryListUuid String?          @db.Uuid()
-    User                User[]
+    requestUser         User             @relation(name: "requestUser", fields: [requestUserUuid], references: [uuid])
+    requestUserUuid     String           @db.Uuid()
+    hostUser            User             @relation(name: "hostUser", fields: [hostUserUuid], references: [uuid])
+    hostUserUuid        String           @db.Uuid()
     Message             Message[]
     Proposal            Proposal[]
 }
 
 model Message {
-    id         Int      @id @default(autoincrement())
-    content    String
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @default(now()) @updatedAt
-    userUuid   Int
-    user       User     @relation(fields: [userUuid], references: [id])
-    RoomChat   ChatRoom @relation(fields: [roomChatId], references: [id])
-    roomChatId Int
+    id           Int      @id @default(autoincrement())
+    content      String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now()) @updatedAt
+    userUuid     String   @db.Uuid()
+    user         User     @relation(fields: [userUuid], references: [uuid])
+    RoomChat     ChatRoom @relation(fields: [roomChatUuid], references: [uuid])
+    roomChatUuid String   @db.Uuid()
 }
 
 model Contacts {

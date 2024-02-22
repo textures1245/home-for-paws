@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-export default function handle(
+export default function prismaHandle(
   e: Prisma.PrismaClientKnownRequestError | unknown
 ) {
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
