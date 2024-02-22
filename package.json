@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.2.1",
     "@prisma/client": "^5.9.1",
     "@radix-ui/themes": "^2.0.3",
     "@types/geojson": "^7946.0.14",
