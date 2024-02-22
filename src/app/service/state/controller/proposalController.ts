@@ -26,15 +26,29 @@ const proposalParamModel = proposalModel.pick({
 });
 export type ProposalParam = z.infer<typeof proposalParamModel>;
 
-export async function getProposals() {
+export async function getUserProposals(userUuid: string) {
   try {
-    return prisma.proposal.findMany();
+    return prisma.proposal.findMany({
+      where: {
+        OR: [
+          {
+            proposalOwnerUuid: userUuid,
+          },
+          {
+            toOfferingUserUuid: userUuid,
+          },
+        ],
+      },
+    });
   } catch (e) {
     throw onPrismaHandler(e);
   }
 }
 
-export async function createProposalRequest(request: ProposalParam, referToListType: "PET_DELIVERY" | "PET_ADOPTER") {
+export async function createProposalRequest(
+  request: ProposalParam,
+  referToListType: "PET_DELIVERY" | "PET_ADOPTER"
+) {
   try {
     return prisma.proposal.create({
       data: {
@@ -46,8 +60,14 @@ export async function createProposalRequest(request: ProposalParam, referToListT
         description: request.description,
         offerAs: request.offerAs,
         chatRoomUuid: request.chatRoomUuid,
-        petDeliveryListUuid: referToListType === "PET_DELIVERY" ? request.referenceListUuid : undefined,
-        adopterListUuid: referToListType === "PET_ADOPTER" ? request.referenceListUuid : undefined,
+        petDeliveryListUuid:
+          referToListType === "PET_DELIVERY"
+            ? request.referenceListUuid
+            : undefined,
+        adopterListUuid:
+          referToListType === "PET_ADOPTER"
+            ? request.referenceListUuid
+            : undefined,
       },
     });
   } catch (e) {
