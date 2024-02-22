@@ -6,8 +6,11 @@ export const chatRoomModel = z.object({
   uuid: z.string().uuid(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  userUuid: z.string().uuid().array(),
+  requestUserUuid: z.string().uuid(),
+  hostUserUuid: z.string().uuid(),
   messages: messageModel.array(),
+  petAdopterListReferUuid: z.string().uuid().optional(),
+  petDeliveryListReferUuid: z.string().uuid().optional(),
 });
 
 export type ChatRoom = z.infer<typeof chatRoomModel>;
