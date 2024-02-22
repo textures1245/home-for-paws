@@ -12,6 +12,8 @@ export const proposalModel = z.object({
   status: z.enum(["PENDING", "ACCEPTED", "REJECTED"]),
   createdAt: z.date(),
   updatedAt: z.date(),
+  chatRoomUuid: z.string().uuid(),
+  referenceListUuid: z.string().uuid(),
 });
 
 export type Proposal = z.infer<typeof proposalModel>;
