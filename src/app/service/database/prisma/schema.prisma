@@ -44,7 +44,7 @@ model User {
     PaymentIn        Payment[]         @relation("payee")
     PaymentOut       Payment[]         @relation("payer")
     AdopterList      AdopterList[]
-    PetDeliveryList  PetDeliveryList[]
+    PetDeliveryList  PetDeliveryList[] @relation()
 }
 
 model Payment {
@@ -105,8 +105,13 @@ model ChatRoom {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
 
-    User    User[]
-    Message Message[]
+    adopterList         AdopterList?     @relation(fields: [adopterListUuid], references: [uuid])
+    adopterListUuid     String?          @db.Uuid()
+    petDeliveryList     PetDeliveryList? @relation(fields: [petDeliveryListUuid], references: [uuid])
+    petDeliveryListUuid String?          @db.Uuid()
+    User                User[]
+    Message             Message[]
+    Proposal            Proposal[]
 }
 
 model Message {
@@ -147,20 +152,28 @@ model DataAnalytics {
 }
 
 model Proposal {
-    id                 Int            @id @default(autoincrement())
-    uuid               String         @unique @default(uuid()) @db.Uuid()
-    petUuid            String         @db.Uuid()
-    proposalOwnerUuid  String         @db.Uuid()
-    offeringPrice      Float
-    description        String
-    status             ProposalStatus
-    createdAt          DateTime       @default(now())
-    updatedAt          DateTime       @default(now()) @updatedAt
+    id                Int            @id @default(autoincrement())
+    uuid              String         @unique @default(uuid()) @db.Uuid()
+    petUuid           String         @db.Uuid()
+    proposalOwnerUuid String         @db.Uuid()
+    offeringPrice     Float
+    description       String
+    status            ProposalStatus
+    createdAt         DateTime       @default(now())
+    updatedAt         DateTime       @default(now()) @updatedAt
+
     // Define relationships
-    pet                Pet            @relation(fields: [petUuid], references: [uuid])
-    toOfferingUser     User?          @relation(name: "toOfferingUser", fields: [toOfferingUserUuid], references: [uuid])
-    toOfferingUserUuid String?        @db.Uuid()
-    proposalOwner      User           @relation(name: "proposalOwner", fields: [proposalOwnerUuid], references: [uuid])
+    chatRoom            ChatRoom         @relation(fields: [chatRoomUuid], references: [uuid])
+    chatRoomUuid        String           @db.Uuid()
+    adopterList         AdopterList?     @relation(fields: [adopterListUuid], references: [uuid])
+    adopterListUuid     String?          @db.Uuid()
+    petDeliveryList     PetDeliveryList? @relation(fields: [petDeliveryListUuid], references: [uuid])
+    petDeliveryListUuid String?          @db.Uuid()
+
+    pet                Pet     @relation(fields: [petUuid], references: [uuid])
+    toOfferingUser     User?   @relation(name: "toOfferingUser", fields: [toOfferingUserUuid], references: [uuid])
+    toOfferingUserUuid String? @db.Uuid()
+    proposalOwner      User    @relation(name: "proposalOwner", fields: [proposalOwnerUuid], references: [uuid])
     offerAs            Role
 }
 
@@ -172,13 +185,15 @@ model AdopterList {
 
     // Define relationships
 
-    ownerAdopterList    User    @relation(fields: [ownerUuid], references: [uuid])
-    ownerUuid           String  @db.Uuid()
+    ownerAdopterList    User       @relation(fields: [ownerUuid], references: [uuid])
+    ownerUuid           String     @db.Uuid()
     adoptableList       Pet[]
     address             String
     maxPrice            Float
     minPrice            Float
     willingnessToTravel Boolean
+    Proposal            Proposal[]
+    ChatRoom            ChatRoom[]
 }
 
 model PetDeliveryList {
@@ -188,13 +203,15 @@ model PetDeliveryList {
     updatedAt DateTime @default(now()) @updatedAt
 
     // Define relationships
-    ownerAdopterList    User    @relation(fields: [ownerUuid], references: [uuid])
-    ownerUuid           String  @db.Uuid()
+    ownerAdopterList    User       @relation(fields: [ownerUuid], references: [uuid])
+    ownerUuid           String     @db.Uuid()
     petDeliveryListPet  Pet[]
     address             String
     maxPrice            Float
     minPrice            Float
     willingnessToTravel Boolean
+    Proposal            Proposal[]
+    ChatRoom            ChatRoom[]
 }
 
 model Preference {
