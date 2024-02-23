@@ -1,8 +1,16 @@
 import prisma from "@/app/service/database/prisma/prisma.config";
-import { User } from "@/app/service/model/user/user";
-import { Auth } from "@/app/service/model/user/auth";
-import { createPreference } from "./preferenceController";
-import { Prisma } from "@prisma/client";
+import { PreferenceParams, createPreference } from "./preferenceController";
+import { Auth as PrismAuth, User as PrismaUser } from "@prisma/client";
+import prismaHandle from "@/app/service/error/prismaHandle";
+import { userModel } from "@/app/service/model/user/user";
+import { z } from "zod";
+
+const userParamsModel = userModel.pick({
+  email: true,
+  userRole: true,
+});
+
+export type UserParamsRequest = z.infer<typeof userParamsModel>;
 
 export async function ifUserExists(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -13,33 +21,38 @@ export async function ifUserExists(email: string): Promise<boolean> {
   return user !== null;
 }
 
-export async function createUser(userData: User, authCredential: Auth) {
-  if (!userData && !authCredential)
+export async function createUser(
+  userDataReq: UserParamsRequest,
+  userPreferenceReq: PreferenceParams,
+  authCredential: PrismAuth
+) {
+  if (!userDataReq && !authCredential)
     throw new Error("Invalid user data or auth credential");
 
   try {
-    const preference = await createPreference(userData);
+    const preference = await createPreference(userPreferenceReq);
 
-    const user = await prisma.user.create({
+    return prisma.user.create({
       data: {
         authUuid: authCredential.uuid,
         userPreferenceUuid: preference.uuid,
-        email: userData.email,
-        userRole: userData.userRole,
+        email: userDataReq.email,
+        userRole: userDataReq.userRole,
       },
     });
-
-    return user;
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        JSON.stringify({
-          code: e.code,
-          meta: e.meta,
-          message: e.message,
-        })
-      );
-    }
-    throw e;
+    throw prismaHandle(e);
+  }
+}
+
+export async function getUser(authUuid: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: {
+        authUuid: authUuid,
+      },
+    });
+  } catch (e) {
+    throw prismaHandle(e);
   }
 }
