@@ -22,6 +22,7 @@ model Auth {
 model User {
     id        Int      @id @default(autoincrement())
     uuid      String   @unique @default(uuid()) @db.Uuid()
+    name      String
     email     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
@@ -33,10 +34,10 @@ model User {
     userPreferences    Preference @relation(fields: [userPreferenceUuid], references: [uuid])
     userPreferenceUuid String     @db.Uuid()
 
-    Message             Message[]
+    Message Message[]
 
     // divide the relationship into two different types, make it easier to define proposal reqeust rule
-    RequestUserChatRoom ChatRoom[] @relation("requestUser") 
+    RequestUserChatRoom ChatRoom[] @relation("requestUser")
     HostUserChatRoom    ChatRoom[] @relation("hostUser")
 
     OwnerReview      Review[]          @relation("OwnerRelation")
@@ -84,22 +85,21 @@ model Review {
 }
 
 model Pet {
-    id                  Int             @id @default(autoincrement())
-    uuid                String          @unique @default(uuid()) @db.Uuid()
-    name                String
-    type                String
-    species             String
-    age                 Int
-    createdAt           DateTime        @default(now())
-    updatedAt           DateTime        @default(now()) @updatedAt
-    PetOwner            User            @relation(fields: [petOwnerUuid], references: [uuid])
-    petOwnerUuid        String          @db.Uuid()
-    Proposal            Proposal[]
-    PetDeliveryList     PetDeliveryList @relation(fields: [petDeliveryListUuid], references: [uuid])
-    petDeliveryListUuid String          @db.Uuid()
+    id           Int        @id @default(autoincrement())
+    uuid         String     @unique @default(uuid()) @db.Uuid()
+    name         String
+    type         PetType
+    species      String
+    age          Int
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
+    PetOwner     User       @relation(fields: [petOwnerUuid], references: [uuid])
+    petOwnerUuid String     @db.Uuid()
+    Proposal     Proposal[]
 
-    AdopterList     AdopterList? @relation(fields: [adopterListUuid], references: [uuid])
-    adopterListUuid String?      @db.Uuid()
+    AdopterList     AdopterList?      @relation(fields: [adopterListUuid], references: [uuid])
+    adopterListUuid String?           @db.Uuid()
+    PetDeliveryList PetDeliveryList[]
 }
 
 model ChatRoom {
@@ -211,7 +211,8 @@ model PetDeliveryList {
     // Define relationships
     ownerAdopterList    User       @relation(fields: [ownerUuid], references: [uuid])
     ownerUuid           String     @db.Uuid()
-    petDeliveryListPet  Pet[]
+    Pet                 Pet        @relation(fields: [petUuid], references: [uuid])
+    petUuid             String     @db.Uuid()
     address             String
     maxPrice            Float
     minPrice            Float
@@ -260,6 +261,11 @@ enum Role {
     USER_SENDER
     USER_ADOPTER
     ADMIN
+}
+
+enum PetType {
+    DOG
+    CAT
 }
 
 enum ProposalStatus {
