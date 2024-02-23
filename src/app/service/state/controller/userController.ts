@@ -8,6 +8,7 @@ import { z } from "zod";
 const userParamsModel = userModel.pick({
   email: true,
   userRole: true,
+  name: true,
 });
 
 export type UserParamsRequest = z.infer<typeof userParamsModel>;
@@ -34,6 +35,7 @@ export async function createUser(
 
     return prisma.user.create({
       data: {
+        name: userDataReq.name,
         authUuid: authCredential.uuid,
         userPreferenceUuid: preference.uuid,
         email: userDataReq.email,
