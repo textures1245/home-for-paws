@@ -1,24 +1,37 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { Auth } from "@/app/service/model/user/auth";
+import { Auth as PrismaAuth } from "@prisma/client";
+import {
+  AuthCredential,
+  createAuthCredential,
+  validateCredential,
+} from "../controller/authController";
 
-type AuthState = Auth & {
-  setAuth: (authData: Auth) => void;
+type AuthState = {
+  auth: PrismaAuth | null;
 };
 
+type AuthActionState = {
+  setAuth: (authData: AuthCredential) => void;
+  createAuth: (authData: AuthCredential) => Promise<PrismaAuth>;
+  getAuth: () => PrismaAuth | null;
+};
 
-
-const paymentStore = create<AuthState>()(
+const paymentStore = create<AuthState & AuthActionState>()(
   devtools(
     persist(
       (set, get) => ({
-        id: 0,
-        uuid: "",
-        email: "",
-        password: "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        setAuth: (authData: Auth) => set((state) => ({ ...authData })),
+        auth: null,
+        createAuth: async (authData: AuthCredential) => {
+          const auth = await createAuthCredential(authData);
+          get().setAuth(auth);
+          return auth;
+        },
+        setAuth: async (authData: AuthCredential) => {
+          const validatedAuth = await validateCredential(authData);
+          set((s) => ({ auth: validatedAuth }));
+        },
+        getAuth: () => get().auth,
       }),
 
       { name: "auth-storage" }

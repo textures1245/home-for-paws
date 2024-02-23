@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import authStore from "@/app/service/state/store/authStore";
 import { ifUserExists } from "./userController";
 import { redirect } from "next/navigation";
+import { schemaValidate } from "../../error/zodValidation";
 
 export const authCredentialsModel = z.object({
   email: z.string().email(),
@@ -18,7 +19,9 @@ export const authCredentialsModel = z.object({
 
 export type AuthCredential = z.infer<typeof authCredentialsModel>;
 
-async function signIn({ email, password }: AuthCredential) {
+export async function validateCredential(reqData: AuthCredential) {
+  const { email, password } = schemaValidate(authCredentialsModel)(reqData);
+
   const auth = await prisma.auth.findUnique({
     where: {
       email,
@@ -29,7 +32,7 @@ async function signIn({ email, password }: AuthCredential) {
     throw new Error("Auth not found");
   }
 
-  const valid = await bcrypt.compare(password, auth?.password);
+  const valid = await bcrypt.compare(password, auth.password);
   const token = jwt.sign(auth, process.env.JWT_SECRET as string, {
     expiresIn: "1d",
   });
@@ -56,13 +59,15 @@ async function signIn({ email, password }: AuthCredential) {
   return token;
 }
 
-async function createAuthCredential(reqData: AuthCredential) {
+export async function createAuthCredential(reqData: AuthCredential) {
+  const { email, password } = schemaValidate(authCredentialsModel)(reqData);
+
   try {
     const user = await prisma.auth.create({
       data: {
-        email: reqData.email,
+        email: email,
         password: await bcrypt.genSalt(13).then(async (salt) => {
-          return bcrypt.hash(reqData.password, salt).then((hash) => {
+          return bcrypt.hash(password, salt).then((hash) => {
             console.log(`info: hash generated: ${hash}`);
             return hash;
           });
@@ -82,7 +87,7 @@ async function createAuthCredential(reqData: AuthCredential) {
       path: "/",
     });
 
-    return token;
+    return user;
   } catch (err) {
     console.error(err);
     throw new Error("User already exists");
