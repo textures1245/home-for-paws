@@ -2,16 +2,15 @@ import { z } from "zod";
 import { geometrySchema } from "../geometry/geometry";
 
 export const contactsModel = z.object({
-  email: z.boolean(),
-  sms: z.boolean(),
-  phone: z.boolean(),
+  email: z.string(),
+  phone: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export const dataAnalyticsModel = z.object({
   location: geometrySchema,
-  budget: z.string(),
+  budget: z.number(),
   rating: z.number().max(5).min(0),
   willingnessToTravel: z.boolean(),
 });

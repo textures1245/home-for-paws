@@ -1,33 +1,41 @@
 import prisma from "@/app/service/database/prisma/prisma.config";
-import { User } from "@/app/service/model/user/user";
 import { Prisma } from "@prisma/client";
+import { preferenceModel } from "../../model/perference/perference";
+import { z } from "zod";
+import prismaHandle from "../../error/prismaHandle";
 
-export async function createPreference(userData: User) {
+const preferenceParamsModel = preferenceModel.pick({
+  dataAnalytics: true,
+  contacts: true,
+});
+
+export type PreferenceParams = z.infer<typeof preferenceParamsModel>;
+
+export async function createPreference(prefData: PreferenceParams) {
   try {
     const location = await prisma.location.create({
       data: {
-        type: userData.userPreferences.dataAnalytics.location.type,
-        properties: userData.userPreferences.dataAnalytics.location.properties,
+        type: prefData.dataAnalytics.location.type,
+        properties: prefData.dataAnalytics.location.properties,
         geometry: {
-          create: userData.userPreferences.dataAnalytics.location.geometry,
+          create: prefData.dataAnalytics.location.geometry,
         },
       },
     });
 
     const contacts = await prisma.contacts.create({
       data: {
-        email: userData.userPreferences.contacts.email,
-        phone: userData.userPreferences.contacts.phone,
+        email: prefData.contacts.email,
+        phone: prefData.contacts.phone,
       },
     });
 
     const dataAnalytics = await prisma.dataAnalytics.create({
       data: {
         locationUuid: location.uuid,
-        budget: userData.userPreferences.dataAnalytics.budget,
-        rating: userData.userPreferences.dataAnalytics.rating,
-        willingnessToTravel:
-          userData.userPreferences.dataAnalytics.willingnessToTravel,
+        budget: prefData.dataAnalytics.budget,
+        rating: prefData.dataAnalytics.rating,
+        willingnessToTravel: prefData.dataAnalytics.willingnessToTravel,
       },
     });
 
@@ -38,15 +46,7 @@ export async function createPreference(userData: User) {
       },
     });
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      throw new Error(
-        JSON.stringify({
-          code: e.code,
-          meta: e.meta,
-          message: e.message,
-        })
-      );
-    }
-    throw e;
+    throw prismaHandle(e);
+
   }
 }
