@@ -3,6 +3,7 @@ import { z } from "zod";
 export const petModel = z.object({
   id: z.number().positive(),
   uid: z.string().uuid(),
+  ownerUuid: z.string().uuid(),
   name: z.string(),
   type: z.enum(["DOG", "CAT"]),
   species: z.string(),
