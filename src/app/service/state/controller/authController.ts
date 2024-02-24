@@ -56,7 +56,7 @@ export async function validateCredential(reqData: AuthCredential) {
     });
   }
 
-  return token;
+  return auth;
 }
 
 export async function createAuthCredential(reqData: AuthCredential) {
