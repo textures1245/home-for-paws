@@ -47,6 +47,79 @@ export async function createPreference(prefData: PreferenceParams) {
     });
   } catch (e) {
     throw prismaHandle(e);
+  }
+}
 
+export async function updatePreference(
+  prefData: PreferenceParams,
+  uuid: string
+) {
+  try {
+    const location = await prisma.location.update({
+      where: {
+        uuid: uuid,
+      },
+      data: {
+        type: prefData.dataAnalytics.location.type,
+        properties: prefData.dataAnalytics.location.properties,
+        geometry: {
+          update: prefData.dataAnalytics.location.geometry,
+        },
+      },
+    });
+
+    const contacts = await prisma.contacts.update({
+      where: {
+        uuid: uuid,
+      },
+      data: {
+        email: prefData.contacts.email,
+        phone: prefData.contacts.phone,
+      },
+    });
+
+    const dataAnalytics = await prisma.dataAnalytics.update({
+      where: {
+        uuid: uuid,
+      },
+      data: {
+        locationUuid: location.uuid,
+        budget: prefData.dataAnalytics.budget,
+        rating: prefData.dataAnalytics.rating,
+        willingnessToTravel: prefData.dataAnalytics.willingnessToTravel,
+      },
+    });
+
+    return prisma.preference.update({
+      where: {
+        uuid: uuid,
+      },
+      data: {
+        contactUuid: contacts.uuid,
+        dataUuid: dataAnalytics.uuid,
+      },
+    });
+  } catch (e) {
+    throw prismaHandle(e);
+  }
+}
+
+export async function getPreferenceByUserUuid(userUuid: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        uuid: userUuid,
+      },
+    });
+
+    if (user) {
+      return prisma.preference.findUnique({
+        where: {
+          uuid: user.userPreferenceUuid,
+        },
+      });
+    }
+  } catch (e) {
+    throw prismaHandle(e);
   }
 }

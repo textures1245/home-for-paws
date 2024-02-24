@@ -1,7 +1,5 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import authStore from "@/app/service/state/store/authStore";
-import userPreferenceStore from "@/app/service/state/store/preferenceStore";
 import { User as PrismaUser, Auth as PrismaAuth } from "@prisma/client";
 import {
   UserParamsRequest,
@@ -9,6 +7,7 @@ import {
   getUser,
 } from "../controller/userController";
 import { PreferenceParams } from "../controller/preferenceController";
+import preferenceStore from "@/app/service/state/store/preferenceStore";
 
 type UserState = {
   user: PrismaUser | null;
@@ -34,6 +33,10 @@ const paymentStore = create<UserState & UserActionState>()(
           userPrefReq: PreferenceParams,
           authCredential: PrismaAuth
         ) => {
+          const { createPreference, setPreference } = preferenceStore();
+
+          await createPreference(userPrefReq).then((res) => setPreference(res));
+
           const user = await createUser(
             userDataReq,
             userPrefReq,

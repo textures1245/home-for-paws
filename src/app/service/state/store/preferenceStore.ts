@@ -1,38 +1,50 @@
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
-import { Preference } from "@/app/service/model/preference/preference";
+import { Preference as PrismaPreference } from "@prisma/client";
+import {
+  updatePreference,
+  PreferenceParams,
+  createPreference,
+} from "../controller/preferenceController";
 
-const paymentStore = create<Preference>()(
+type PreferenceState = {
+  userPreference: PrismaPreference | null;
+};
+
+type PreferenceActionState = {
+  updatePreference: (perfData: PreferenceParams, prefUuid: string) => void;
+  createPreference: (perfData: PreferenceParams) => Promise<PrismaPreference>;
+  setPreference: (pref: PrismaPreference) => void;
+  getPreference: () => PrismaPreference | null;
+};
+
+const preferenceStore = create<PreferenceState & PreferenceActionState>()(
   devtools(
     persist(
       (set, get) => ({
-        id: 0,
-        uid: "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        contacts: {
-          email: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          phone: "",
+        userPreference: null,
+        updatePreference: async (
+          perfData: PreferenceParams,
+          prefUuid: string
+        ) => {
+          const pref = await updatePreference(perfData, prefUuid);
+          set((s) => ({
+            userPreference: pref,
+          }));
         },
-        dataAnalytics: {
-          location: {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "Point",
-              coordinates: [0, 0],
-            },
-          },
-          budget: 0,
-          rating: 0,
-          willingnessToTravel: false,
+        setPreference: (pref: PrismaPreference) => {
+          set((s) => ({
+            userPreference: pref,
+          }));
         },
+        createPreference: async (perfData: PreferenceParams) => {
+          return createPreference(perfData);
+        },
+        getPreference: () => get().userPreference,
       }),
-      { name: "preference-storage" }
+      { name: "pet-storage" }
     )
   )
 );
 
-export default paymentStore;
+export default preferenceStore;
