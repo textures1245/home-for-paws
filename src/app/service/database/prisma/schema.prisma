@@ -1,0 +1,281 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+model Auth {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    email     String   @unique
+    password  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    // Define relationships
+    User      User?
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    name      String
+    email     String   @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    userRole  Role
+
+    // Define relationships
+    auth               Auth       @relation(fields: [authUuid], references: [uuid])
+    authUuid           String     @unique @db.Uuid()
+    userPreferences    Preference @relation(fields: [userPreferenceUuid], references: [uuid])
+    userPreferenceUuid String     @db.Uuid()
+
+    Message Message[]
+
+    // divide the relationship into two different types, make it easier to define proposal reqeust rule
+    RequestUserChatRoom ChatRoom[] @relation("requestUser")
+    HostUserChatRoom    ChatRoom[] @relation("hostUser")
+
+    OwnerReview      Review[]          @relation("OwnerRelation")
+    ToUserReview Review[]          @relation("ToUserRelation")
+    Pet              Pet[]
+    ToOfferingUser   Proposal[]        @relation("toOfferingUser")
+    ProposalOwner    Proposal[]        @relation("proposalOwner")
+    PaymentIn        Payment[]         @relation("payee")
+    PaymentOut       Payment[]         @relation("payer")
+    AdopterList      AdopterList[]
+    PetDeliveryList  PetDeliveryList[] @relation()
+}
+
+model Payment {
+    id          Int               @id @default(autoincrement())
+    uuid        String            @unique @default(uuid()) @db.Uuid()
+    amount      Float
+    description String
+    status      TransactionStatus
+    paidDate    DateTime          @default(now())
+    type        String
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @default(now()) @updatedAt
+
+    // Define relationships
+    payee     User   @relation(name: "payee", fields: [payeeUuid], references: [uuid])
+    payer     User   @relation(name: "payer", fields: [payerUuid], references: [uuid])
+    payeeUuid String @db.Uuid()
+    payerUuid String @db.Uuid()
+}
+
+model Review {
+    id           Int      @id @default(autoincrement())
+    uuid         String   @unique @default(uuid()) @db.Uuid()
+    reviewDetail String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now()) @updatedAt
+    rating       Float
+
+    // Define relationships
+    owner      User   @relation(name: "OwnerRelation", fields: [ownerUuid], references: [uuid])
+    toUser     User   @relation(name: "ToUserRelation", fields: [toUserUuid], references: [uuid])
+    ownerUuid  String @db.Uuid()
+    toUserUuid String @db.Uuid()
+}
+
+model Pet {
+    id           Int        @id @default(autoincrement())
+    uuid         String     @unique @default(uuid()) @db.Uuid()
+    name         String
+    type         PetType
+    species      String
+    age          Int
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
+    PetOwner     User       @relation(fields: [petOwnerUuid], references: [uuid])
+    petOwnerUuid String     @db.Uuid()
+    Proposal     Proposal[]
+
+    AdopterList     AdopterList?      @relation(fields: [adopterListUuid], references: [uuid])
+    adopterListUuid String?           @db.Uuid()
+    PetDeliveryList PetDeliveryList[]
+}
+
+model ChatRoom {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    adopterList         AdopterList?     @relation(fields: [adopterListUuid], references: [uuid])
+    adopterListUuid     String?          @db.Uuid()
+    petDeliveryList     PetDeliveryList? @relation(fields: [petDeliveryListUuid], references: [uuid])
+    petDeliveryListUuid String?          @db.Uuid()
+    requestUser         User             @relation(name: "requestUser", fields: [requestUserUuid], references: [uuid])
+    requestUserUuid     String           @db.Uuid()
+    hostUser            User             @relation(name: "hostUser", fields: [hostUserUuid], references: [uuid])
+    hostUserUuid        String           @db.Uuid()
+    Message             Message[]
+    Proposal            Proposal[]
+}
+
+model Message {
+    id           Int      @id @default(autoincrement())
+    content      String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now()) @updatedAt
+    userUuid     String   @db.Uuid()
+    user         User     @relation(fields: [userUuid], references: [uuid])
+    RoomChat     ChatRoom @relation(fields: [roomChatUuid], references: [uuid])
+    roomChatUuid String   @db.Uuid()
+}
+
+model Contacts {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    email     String
+    phone     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // No direct relationships provided in the original schema, adjust as needed
+    Preference Preference[]
+}
+
+model DataAnalytics {
+    id                  Int          @id @default(autoincrement())
+    uuid                String       @unique @default(uuid()) @db.Uuid()
+    budget              Float
+    rating              Float        @default(0)
+    willingnessToTravel Boolean
+    createdAt           DateTime     @default(now())
+    updatedAt           DateTime     @default(now()) @updatedAt
+    // No direct relationships provided in the original schema, adjust as needed
+    Preference          Preference[]
+    location            Location     @relation(fields: [locationUuid], references: [uuid])
+    locationUuid        String       @db.Uuid()
+}
+
+model Proposal {
+    id                Int            @id @default(autoincrement())
+    uuid              String         @unique @default(uuid()) @db.Uuid()
+    petUuid           String         @db.Uuid()
+    proposalOwnerUuid String         @db.Uuid()
+    offeringPrice     Float
+    description       String
+    status            ProposalStatus
+    createdAt         DateTime       @default(now())
+    updatedAt         DateTime       @default(now()) @updatedAt
+
+    // Define relationships
+    chatRoom            ChatRoom         @relation(fields: [chatRoomUuid], references: [uuid])
+    chatRoomUuid        String           @db.Uuid()
+    adopterList         AdopterList?     @relation(fields: [adopterListUuid], references: [uuid])
+    adopterListUuid     String?          @db.Uuid()
+    petDeliveryList     PetDeliveryList? @relation(fields: [petDeliveryListUuid], references: [uuid])
+    petDeliveryListUuid String?          @db.Uuid()
+
+    pet                Pet     @relation(fields: [petUuid], references: [uuid])
+    toOfferingUser     User?   @relation(name: "toOfferingUser", fields: [toOfferingUserUuid], references: [uuid])
+    toOfferingUserUuid String? @db.Uuid()
+    proposalOwner      User    @relation(name: "proposalOwner", fields: [proposalOwnerUuid], references: [uuid])
+    offerAs            Role
+}
+
+model AdopterList {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // Define relationships
+
+    ownerAdopterList    User       @relation(fields: [ownerUuid], references: [uuid])
+    ownerUuid           String     @db.Uuid()
+    adoptableList       Pet[]
+    address             String
+    maxPrice            Float
+    minPrice            Float
+    willingnessToTravel Boolean
+    Proposal            Proposal[]
+    ChatRoom            ChatRoom[]
+}
+
+model PetDeliveryList {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // Define relationships
+    ownerAdopterList    User       @relation(fields: [ownerUuid], references: [uuid])
+    ownerUuid           String     @db.Uuid()
+    Pet                 Pet        @relation(fields: [petUuid], references: [uuid])
+    petUuid             String     @db.Uuid()
+    address             String
+    maxPrice            Float
+    minPrice            Float
+    willingnessToTravel Boolean
+    Proposal            Proposal[]
+    ChatRoom            ChatRoom[]
+}
+
+model Preference {
+    id        Int      @id @default(autoincrement())
+    uuid      String   @unique @default(uuid()) @db.Uuid()
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // Define relationships
+    contacts      Contacts      @relation(fields: [contactUuid], references: [uuid])
+    contactUuid   String        @db.Uuid()
+    dataAnalytics DataAnalytics @relation(fields: [dataUuid], references: [uuid])
+    dataUuid      String        @db.Uuid()
+    User          User[]
+}
+
+model Location {
+    id            Int             @id @default(autoincrement())
+    uuid          String          @unique @default(uuid()) @db.Uuid()
+    type          String
+    properties    Json
+    geometry      Geometry        @relation(fields: [geometryUuid], references: [uuid])
+    geometryUuid  String          @db.Uuid()
+    DataAnalytics DataAnalytics[]
+    createdAt     DateTime        @default(now())
+    updatedAt     DateTime        @default(now()) @updatedAt
+}
+
+model Geometry {
+    id          Int        @id @default(autoincrement())
+    uuid        String     @unique @default(uuid()) @db.Uuid()
+    coordinates Float[]
+    type        String
+    Location    Location[]
+}
+
+// Add other models and relationships as needed
+
+enum Role {
+    USER_SENDER
+    USER_ADOPTER
+    ADMIN
+}
+
+enum PetType {
+    DOG
+    CAT
+}
+
+enum ProposalStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+enum TransactionStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
