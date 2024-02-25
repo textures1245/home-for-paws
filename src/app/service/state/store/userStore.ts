@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { User as PrismaUser, Auth as PrismaAuth } from "@prisma/client";
+import {
+  User as PrismaUser,
+  Auth as PrismaAuth,
+  Review as PrismaReview,
+} from "@prisma/client";
 import {
   UserParamsRequest,
   createUser,
@@ -8,6 +12,7 @@ import {
 } from "../controller/userController";
 import { PreferenceParams } from "../controller/preferenceController";
 import preferenceStore from "@/app/service/state/store/preferenceStore";
+import { ReviewParam, createReview } from "../controller/reviewController";
 
 type UserState = {
   user: PrismaUser | null;
@@ -21,6 +26,8 @@ type UserActionState = {
   ) => Promise<PrismaUser>;
   setUser: (authUuid: string) => void;
   getUser: () => PrismaUser | null;
+  getUserByUuid: (authUuid: string) => Promise<PrismaUser>;
+  onCreateReview: (reviewData: ReviewParam) => Promise<PrismaReview>;
 };
 
 const paymentStore = create<UserState & UserActionState>()(
@@ -52,6 +59,14 @@ const paymentStore = create<UserState & UserActionState>()(
           set((state) => ({ user: user }));
         },
         getUser: () => get().user,
+        getUserByUuid: async (authUuid: string) => {
+          const user = await getUser(authUuid);
+          if (!user) throw new Error("User not found");
+          return user;
+        },
+        onCreateReview: (dataReq: ReviewParam) => {
+          return createReview(dataReq);
+        },
       }),
       { name: "user-storage" }
     )

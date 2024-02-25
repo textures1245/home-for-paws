@@ -49,9 +49,13 @@ export async function createUser(
 
 export async function getUser(authUuid: string) {
   try {
-    return await prisma.user.findUnique({
+    return prisma.user.findUnique({
       where: {
         authUuid: authUuid,
+      },
+      include: {
+        OwnerReview: true,
+        ToUserReview: true,
       },
     });
   } catch (e) {
