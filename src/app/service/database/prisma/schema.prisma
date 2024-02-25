@@ -41,7 +41,7 @@ model User {
     HostUserChatRoom    ChatRoom[] @relation("hostUser")
 
     OwnerReview      Review[]          @relation("OwnerRelation")
-    ReviewPreference Review[]          @relation("ToUserRelation")
+    ToUserReview Review[]          @relation("ToUserRelation")
     Pet              Pet[]
     ToOfferingUser   Proposal[]        @relation("toOfferingUser")
     ProposalOwner    Proposal[]        @relation("proposalOwner")
