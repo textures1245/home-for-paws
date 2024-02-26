@@ -1,9 +1,9 @@
 import {
   Proposal,
   proposalModel,
-} from "@/app/service/model/adoptation/proposal";
+} from "@/lib/service/model/adoptation/proposal";
 import { z } from "zod";
-import prisma from "@/app/service/database/prisma/prisma.config";
+import prisma from "@/lib/service/database/prisma/prisma.config";
 import onPrismaHandler from "../../error/prismaHandle";
 import { createPayment } from "./paymentController";
 import { ToastData } from "../../utils/toast.config";

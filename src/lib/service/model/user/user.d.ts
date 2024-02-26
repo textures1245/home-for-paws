@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { preferenceModel } from "@/app/service/model/preference/preference";
-import { authModel } from "@/app/service/model/user/auth";
+import { preferenceModel } from "@/lib/service/model/preference/preference";
+import { authModel } from "@/lib/service/model/user/auth";
 
 export const userModel = z.object({
   id: z.number().positive(),

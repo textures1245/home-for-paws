@@ -1,8 +1,8 @@
-import { Payment, paymentModel } from "@/app/service/model/transaction/payment";
+import { Payment, paymentModel } from "@/lib/service/model/transaction/payment";
 import { z } from "zod";
 import { schemaValidate } from "../../error/zodValidation";
 import prismaHandler from "../../error/prismaHandle";
-import prisma from "@/app/service/database/prisma/prisma.config";
+import prisma from "@/lib/service/database/prisma/prisma.config";
 
 const paymentParamsModel = paymentModel.pick({
   amount: true,

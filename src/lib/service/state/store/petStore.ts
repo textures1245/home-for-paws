@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
-import { Pet } from "@/app/service/model/pet/pet";
+import { Pet } from "@/lib/service/model/pet/pet";
 import { Pet as PrismaPet } from "@prisma/client";
 import {
   PetParamsRequest,

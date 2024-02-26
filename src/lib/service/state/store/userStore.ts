@@ -11,7 +11,7 @@ import {
   getUser,
 } from "../controller/userController";
 import { PreferenceParams } from "../controller/preferenceController";
-import preferenceStore from "@/app/service/state/store/preferenceStore";
+import preferenceStore from "@/lib/service/state/store/preferenceStore";
 import { ReviewParam, createReview } from "../controller/reviewController";
 
 type UserState = {
@@ -30,7 +30,7 @@ type UserActionState = {
   onCreateReview: (reviewData: ReviewParam) => Promise<PrismaReview>;
 };
 
-const paymentStore = create<UserState & UserActionState>()(
+const userStore = create<UserState & UserActionState>()(
   devtools(
     persist(
       (set, get) => ({
@@ -73,4 +73,4 @@ const paymentStore = create<UserState & UserActionState>()(
   )
 );
 
-export default paymentStore;
+export default userStore;

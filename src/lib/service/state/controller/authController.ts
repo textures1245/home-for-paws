@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import prisma from "@/app/service/database/prisma/prisma.config";
+import prisma from "@/lib/service/database/prisma/prisma.config";
 import { z } from "zod";
 import { cookies } from "next/headers";
-import authStore from "@/app/service/state/store/authStore";
+import authStore from "@/lib/service/state/store/authStore";
 import { ifUserExists } from "./userController";
 import { redirect } from "next/navigation";
 import { schemaValidate } from "../../error/zodValidation";

@@ -1,8 +1,8 @@
-import prisma from "@/app/service/database/prisma/prisma.config";
+import prisma from "@/lib/service/database/prisma/prisma.config";
 import { PreferenceParams, createPreference } from "./preferenceController";
 import { Auth as PrismAuth, User as PrismaUser } from "@prisma/client";
-import prismaHandle from "@/app/service/error/prismaHandle";
-import { userModel } from "@/app/service/model/user/user";
+import prismaHandle from "@/lib/service/error/prismaHandle";
+import { userModel } from "@/lib/service/model/user/user";
 import { z } from "zod";
 
 const userParamsModel = userModel.pick({

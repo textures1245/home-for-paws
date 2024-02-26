@@ -1,4 +1,4 @@
-import prisma from "@/app/service/database/prisma/prisma.config";
+import prisma from "@/lib/service/database/prisma/prisma.config";
 import { Prisma } from "@prisma/client";
 import { preferenceModel } from "../../model/perference/perference";
 import { z } from "zod";
