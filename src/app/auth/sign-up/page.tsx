@@ -13,9 +13,10 @@ export default function Page() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    
 
     const formData = new FormData(event.currentTarget);
-    const response = await fetch("/api/singUp", {
+    const response = await fetch("/api/auth/signUp", {
       method: "POST",
       body: formData,
     });
@@ -69,7 +70,7 @@ export default function Page() {
           <>
             <Button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
+              type="submit"
             >
               สมัคร
             </Button>
@@ -77,7 +78,7 @@ export default function Page() {
               className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
               href="/auth/sign-in"
             >
-              สมัครบัญชีใหม่
+              มีบัญชีอยู่แล้ว
             </Link>
           </>
         </div>

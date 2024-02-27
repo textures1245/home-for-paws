@@ -12,7 +12,7 @@ import { cookies } from "next/headers";
 // good practise to add `server-only` preemptively.
 import "server-only";
 
-export default async function handler(
+export default async function POST(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
