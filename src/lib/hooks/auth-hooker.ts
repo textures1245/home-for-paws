@@ -1,7 +1,7 @@
 // hooks/useCustomHook.ts
 import { useState, useEffect } from "react";
 import jwt from "jsonwebtoken";
-import { getCookie } from "../../lib/service/utils/cookies";
+import { NextRequest } from "next/server";
 
 type AuthToken = {
   id: number;
@@ -12,15 +12,15 @@ type AuthToken = {
   updatedAt: Date;
 };
 
-export function useAuthHooker() {
+export function useAuthHooker(req: NextRequest) {
   const [data, setData] = useState<string | null>(null);
 
   useEffect(() => {
-    const authCookie = getCookie("AuthorizationToken");
+    const authCookie = req.cookies.get("AuthorizationToken");
     if (!process.env.NEXT_PUBLIC_JWT_SECRET)
       throw new Error("JWT secret not found");
     if (authCookie) {
-      const authToken = authCookie.split(" ")[1];
+      const authToken = authCookie.value.split(" ")[1];
       try {
         const jwtAuth = jwt.verify(
           authToken,
@@ -33,7 +33,7 @@ export function useAuthHooker() {
         console.error(error);
       }
     }
-  }, []);
+  }, [req.cookies]);
 
   return data;
 }

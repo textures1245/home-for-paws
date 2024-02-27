@@ -15,6 +15,7 @@ export const dataAnalyticsModel = z.object({
   willingnessToTravel: z.boolean(),
 });
 
+
 export const preferenceModel = z.object({
   id: z.number().positive(),
   uid: z.string().uuid(),
