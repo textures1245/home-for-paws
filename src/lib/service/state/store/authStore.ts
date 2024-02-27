@@ -12,12 +12,12 @@ type AuthState = {
 };
 
 type AuthActionState = {
-  setAuth: (authData: AuthCredential) => void;
+  setAuth: (authData: PrismaAuth) => void;
   createAuth: (authData: AuthCredential) => Promise<PrismaAuth>;
   getAuth: () => PrismaAuth | null;
 };
 
-const paymentStore = create<AuthState & AuthActionState>()(
+const authStore = create<AuthState & AuthActionState>()(
   devtools(
     persist(
       (set, get) => ({
@@ -27,9 +27,8 @@ const paymentStore = create<AuthState & AuthActionState>()(
           get().setAuth(auth);
           return auth;
         },
-        setAuth: async (authData: AuthCredential) => {
-          const validatedAuth = await validateCredential(authData);
-          set((s) => ({ auth: validatedAuth }));
+        setAuth: (auth: PrismaAuth) => {
+          set((s) => ({ auth }));
         },
         getAuth: () => get().auth,
       }),
@@ -39,4 +38,4 @@ const paymentStore = create<AuthState & AuthActionState>()(
   )
 );
 
-export default paymentStore;
+export default authStore;

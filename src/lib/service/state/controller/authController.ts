@@ -1,3 +1,5 @@
+"use server";
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/service/database/prisma/prisma.config";
@@ -5,8 +7,9 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import authStore from "@/lib/service/state/store/authStore";
 import { ifUserExists } from "./userController";
-import { redirect } from "next/navigation";
 import { schemaValidate } from "../../error/zodValidation";
+import { ToastData } from "../../utils/toast.config";
+import { TError } from "../../error/type";
 
 export const authCredentialsModel = z.object({
   email: z.string().email(),
@@ -29,7 +32,7 @@ export async function validateCredential(reqData: AuthCredential) {
   });
 
   if (!auth) {
-    throw new Error("Auth not found");
+    throw new TError("รหัสผ่านหรือโทเคนไม่ถูกต้อง", "error", 404);
   }
 
   const valid = await bcrypt.compare(password, auth.password);
@@ -38,32 +41,28 @@ export async function validateCredential(reqData: AuthCredential) {
   });
 
   if (!valid) {
-    throw new Error("Invalid password");
+    throw new TError("รหัสผ่านหรือโทเคนไม่ถูกต้อง", "error", 404);
   } else {
     const user = await ifUserExists(auth.email);
     if (!user) {
       // - redirect to sign-up page
-      redirect("/auth/sign-up");
+      throw new TError(
+        "คุณยังไม่ได้ลงทะเบียนข้อมูล โปรดลงทะเบียนข้อมูล",
+        "warning",
+        401,
+        "/auth/user-preference-registration"
+      );
     }
-
-    authStore((state) => state.setAuth(auth));
-    cookies().set("AuthorizationToken", `Bearer ${token}`, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
   }
 
-  return auth;
+  return { auth, token };
 }
 
 export async function createAuthCredential(reqData: AuthCredential) {
   const { email, password } = schemaValidate(authCredentialsModel)(reqData);
 
   try {
-    const user = await prisma.auth.create({
+    const auth = await prisma.auth.create({
       data: {
         email: email,
         password: await bcrypt.genSalt(13).then(async (salt) => {
@@ -74,22 +73,12 @@ export async function createAuthCredential(reqData: AuthCredential) {
         }),
       },
     });
-    const token = jwt.sign(user, process.env.JWT_SECRET as string, {
+    const token = jwt.sign(auth, process.env.JWT_SECRET as string, {
       expiresIn: "1d",
     });
 
-    //- set token
-    cookies().set("AuthorizationToken", `Bearer ${token}`, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
-
-    return user;
+    return { auth, token };
   } catch (err) {
-    console.error(err);
-    throw new Error("User already exists");
+    throw "User already exists";
   }
 }

@@ -1,6 +1,6 @@
 import prisma from "@/lib/service/database/prisma/prisma.config";
 import { Prisma } from "@prisma/client";
-import { preferenceModel } from "../../model/perference/perference";
+import { preferenceModel } from "../../model/preference/preference";
 import { z } from "zod";
 import prismaHandle from "../../error/prismaHandle";
 
