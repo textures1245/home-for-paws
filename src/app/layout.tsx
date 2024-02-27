@@ -18,8 +18,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Theme>{children}</Theme>
+      <body className={(inter.className, "thai-font")}>
+        <Theme
+          accentColor="brown"
+          grayColor="sand"
+          radius="medium"
+          scaling="95%"
+          className="thai-font"
+        >
+          {children}
+        </Theme>
       </body>
     </html>
   );
